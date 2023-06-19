@@ -170,7 +170,7 @@ namespace ASP.NETWebAPI.Controllers
                 }
             }
             else
-                return null; // NotFound("Data not found. Please initialize datasets.");
+                return null;
         }
 
         private Matrices GenerateDatasets(int size)
