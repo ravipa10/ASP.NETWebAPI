@@ -1,4 +1,4 @@
-﻿using ASP.NETWebAPI.Models;
+﻿using ASP.NETWebAPI.DataContracts;
 
 namespace ASP.NETWebAPI.Services.Interfaces
 {
