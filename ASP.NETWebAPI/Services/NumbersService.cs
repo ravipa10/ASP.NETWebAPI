@@ -2,6 +2,7 @@
 using ASP.NETWebAPI.Services.Interfaces;
 using Newtonsoft.Json;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ASP.NETWebAPI.Services
 {
@@ -130,26 +131,20 @@ namespace ASP.NETWebAPI.Services
                     throw new Exception("Matrix multiplication is not possible. # of columns of first matrix must equal to # of rows of second matrix");
                 else
                 {
-                    var size = matrixA[0].Count;
-                    //List<List<int>> result = new List<List<int>>();
+                    var size = matrixA.Count;
                     int[,] result = new int[size, size];
 
-                    // looping through matrix A rows  
-                    for (int matrixA_row = 0; matrixA_row < size; ++matrixA_row)
+                    var s = matrixA[0].Count;
+                    Parallel.For(0, s, delegate (int i)
                     {
-                        // for each matrix A row, loop through matrix B columns  
-                        for (int matrixB_col = 0; matrixB_col < size; ++matrixB_col)
+                        for (int j = 0; j < s; j++)
                         {
-                            // loop through matrix A columns to calculate the dot product  
-                            for (int matrixA_col = 0; matrixA_col < size; ++matrixA_col)
+                            for (int k = 0; k < s; k++)
                             {
-                                result[matrixA_row, matrixB_col] +=
-                                  matrixA[matrixA_row][matrixA_col] *
-                                  matrixB[matrixA_col][matrixB_col];
+                                result[i, j] += matrixA[i][k] * matrixB[k][j];
                             }
                         }
-                    }
-
+                    });
                     return result;
 
                 }
