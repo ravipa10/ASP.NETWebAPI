@@ -5,6 +5,7 @@ using System.Data;
 using ASP.NETWebAPI.DataContracts;
 using Newtonsoft.Json;
 using ASP.NETWebAPI.Services.Interfaces;
+using System.Diagnostics;
 
 namespace ASP.NETWebAPI.Controllers
 {
@@ -113,15 +114,24 @@ namespace ASP.NETWebAPI.Controllers
         {
             try
             {
+
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Reset();
+                stopwatch.Start();
+
                 var hash = _numbersService.ConcatenateAndHashCrossProduct();
                 var resultString = hash.Aggregate(new StringBuilder(), (s, i) => s.Append(i.ToString())).ToString();
 
+                stopwatch.Stop();
+
                 var response = new ApiResponse<string>
                 {
-                    Value = resultString == md5HashValue ? "Calculation valid. Computed md5 hash matches request body." : "Calculation invalid. Computed md5 hash does not match request body.",
+                    Value = resultString == md5HashValue ? $"Valid calculation. Computed md5 hash matches request body. Total time: {stopwatch.ElapsedMilliseconds / 1000.00} seconds" 
+                    : $"Invalid calculation. Computed md5 hash does not match request body. Total time: {stopwatch.ElapsedMilliseconds / 1000.00} seconds",
                     Cause = null,
                     Success = true,
                 };
+
                 return Ok(response);
             }
             catch (Exception ex)
