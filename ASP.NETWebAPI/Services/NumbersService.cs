@@ -1,4 +1,4 @@
-﻿using ASP.NETWebAPI.Models;
+﻿using ASP.NETWebAPI.DataContracts;
 using ASP.NETWebAPI.Services.Interfaces;
 using Newtonsoft.Json;
 using System.Text;
@@ -58,12 +58,12 @@ namespace ASP.NETWebAPI.Services
             string fileName = "Matrices.json";
             string fullPath = folder + fileName;
 
-            if (!System.IO.File.Exists(fullPath))
-                System.IO.File.WriteAllText(fullPath, json);
+            if (!File.Exists(fullPath))
+                File.WriteAllText(fullPath, json);
             else
             {
-                System.IO.File.Delete(fullPath);
-                System.IO.File.WriteAllText(fullPath, json);
+                File.Delete(fullPath);
+                File.WriteAllText(fullPath, json);
             }
 
             return json;
