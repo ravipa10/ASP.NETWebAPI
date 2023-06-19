@@ -1,6 +1,7 @@
 ﻿using ASP.NETWebAPI.DataContracts;
 using ASP.NETWebAPI.Services.Interfaces;
 using Newtonsoft.Json;
+using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -74,9 +75,9 @@ namespace ASP.NETWebAPI.Services
             string folder = Directory.GetCurrentDirectory() + @"\";
             string fileName = "Matrices.json";
             string fullPath = folder + fileName;
-            if (System.IO.File.Exists(fullPath))
+            if (File.Exists(fullPath))
             {
-                string content = System.IO.File.ReadAllText(fullPath);
+                string content = File.ReadAllText(fullPath);
                 return JsonConvert.DeserializeObject<Matrices>(content);
             }
             else
@@ -134,17 +135,61 @@ namespace ASP.NETWebAPI.Services
                     var size = matrixA.Count;
                     int[,] result = new int[size, size];
 
-                    var s = matrixA[0].Count;
-                    Parallel.For(0, s, delegate (int i)
+                    // Parallel computation of matrix product
+
+                    //Parallel.For(0, size, delegate (int i)
+                    //{
+                    //    for (int j = 0; j < size; j++)
+                    //    {
+                    //        for (int k = 0; k < size; k++)
+                    //        {
+                    //            result[i, j] += matrixA[i][k] * matrixB[k][j];
+                    //        }
+                    //    }
+                    //});
+
+                    //Flatten 2D matrix into 1D array and then perform parallel computation to calculate the matrix product
+                    //In the 1D array, we can access an element A[i,j] using a[i*size + j] where A = 2D matrix, a = 1D array and size = size of the square matrix.
+
+                    int[] flattenA = new int[size * size];
+                    for (int i = 0; i < size; i++)
                     {
-                        for (int j = 0; j < s; j++)
+                        for (int j = 0; j < size; j++)
                         {
-                            for (int k = 0; k < s; k++)
-                            {
-                                result[i, j] += matrixA[i][k] * matrixB[k][j];
-                            }
+                            flattenA[i * size + j] = matrixA[i][j];
                         }
+                    }
+
+                    int[] flattenB = new int[size * size];
+                    for (int i = 0; i < size; i++)
+                    {
+                        for (int j = 0; j < size; j++)
+                        {
+                            flattenB[i * size + j] = matrixB[i][j];
+                        }
+                    }
+                    int[] flattenC = new int[size * size];
+
+                    Parallel.For(0, size * size, id =>
+                    {
+                        int L = id / size; //get the position in the final matrix from the id
+                        int C = id - L * size;
+
+                        int element = 0;
+                        for (int i = 0; i < size; i++)
+                        {
+                            element += flattenA[L * size + i] * flattenB[C + size * i];
+                        }
+                        flattenC[id] = element;
                     });
+
+                    for (int i = 0; i < size; i++)
+                    {
+                        for (int j = 0; j < size; j++)
+                        {
+                            result[i, j] = flattenC[i * size + j];
+                        }
+                    }
                     return result;
 
                 }
